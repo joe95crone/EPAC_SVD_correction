@@ -1,0 +1,106 @@
+&divide_elements
+		name = *
+		type = QUAD
+		divisions = 20
+&end
+
+&divide_elements
+		name = *
+		type = KQUAD
+		divisions = 20
+&end
+
+&divide_elements
+		name = *
+		type = EKICKER
+		divisions = 20
+&end
+
+&divide_elements
+		name = *
+		type = EDRIFT
+		divisions = 20
+&end
+
+!-----------------
+! FBPIC BEAM RUN
+!-----------------
+
+&run_setup
+		lattice = EPAC_AF_SPECT_V2.lte
+		default_order = 2
+		use_beamline = PMQarrayCOL
+		p_central_mev = 1000
+		sigma = track_files/simple/%s.sig
+		centroid = track_files/simple/%s.cen
+		output = track_files/simple/%s.out
+		final = track_files/simple/%s.fin
+		magnets = track_files/simple/%s.mag
+		parameters = track_files/simple/%s.param
+		random_number_seed=123456789
+		print_statistics=1
+&end
+
+&run_control
+		n_steps = 1
+&end
+
+! Breaks but the test I used...
+!&link_control
+!	clear_links = 1
+!	!summarize_links = 1
+!	verbosity = 1
+!&end
+
+!&link_elements
+!	target = Q2
+!	item = DX
+!	source = Q1
+!	source_position = "before"
+!	mode = "dynamic"
+!	equation = "1 DX *"
+!&end
+
+!&alter_elements
+!		name = W1
+!		item = FILENAME
+!		string_value = "watch_files/simple/EPAC_%s-%03ld.w1"
+!&end
+
+&twiss_output
+		filename = track_files/simple/%s.twi
+		output_at_each_step = 1
+		matched = 0
+		statistics = 1
+		beta_x = 0.005, alpha_x = 0
+		beta_y = 0.005, alpha_y = 0
+&end
+
+!&bunched_beam
+!		bunch = track_files/simple/%s.bun
+!		n_particles_per_bunch = 10000
+!		emit_nx = 1e-6
+!		emit_ny = 1e-6
+!		sigma_dp = 0.01
+!		sigma_s = 3e-6
+!		use_twiss_command_values = 1
+!&end
+
+
+&sdds_beam
+		!input = ../FBPIC_Beam/Saved_Beams/OF2_EPAC_KDE_1GeV.sdds
+		input = ../FBPIC_Beam/Saved_Beams/OF_1GeV_BRIGHT_1.sdds
+
+		input_type = "elegant"
+&end
+
+&track &end
+
+&save_lattice
+		filename = simple_run/EPAC_1GeV_COR.lte
+		output_seq = 2
+&end
+
+
+
+

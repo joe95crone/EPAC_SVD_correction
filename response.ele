@@ -1,0 +1,152 @@
+!# elegant file for creating response matrices
+&run_setup
+		lattice = <lattice>
+		default_order = 2
+		use_beamline = <beamline>
+		p_central_mev = <energy>
+		sigma = track_files/response/<prefix>.%s.sig
+		centroid = track_files/response/<prefix>.%s.cen
+		bpm_centroid = track_files/response/<prefix>.%s.bpmcen
+		print_statistics=1
+		random_number_seed = <seed>
+&end
+
+# load parameters used to implement orbit bump with the respective correctors
+# has to be done before error assignment!
+&load_parameters
+	filename = <param>
+	change_defined_values = 1
+&end
+
+&run_control
+		n_steps = 1
+&end
+
+# error assigned - response matrix would be created with an errored lattice 
+&error_control
+		clear_error_settings = 1
+		error_log = track_files/error/logs/<prefix>.%s.erl
+&end
+
+# additive errors add into the value I have originally entered
+# 3sigma cut-off included to avoid negative beta functions
+
+# INITIAL CONDITIONS
+
+&error_element
+		name = MALIGN
+		item = DX
+		type = "gaussian"
+		amplitude = <InitErr>
+		additive = 1
+		cutoff = 3
+&end
+
+&error_element
+		name = MALIGN
+		item = DY
+		type = "gaussian"
+		amplitude = <InitErr>
+		additive = 1
+		cutoff = 3
+&end
+
+&error_element
+		name = MALIGN
+		item = DXP
+		type = "gaussian"
+		amplitude = <InitErrXYP>
+		additive = 1
+		cutoff = 3
+&end
+
+&error_element
+		name = MALIGN
+		item = DYP
+		type = "gaussian"
+		amplitude = <InitErrXYP>
+		additive = 1
+		cutoff = 3
+&end
+
+# PMQs
+
+&error_element
+		element_type = KQUAD
+		item = DX
+		type = "gaussian"
+		amplitude = <PMQErr>
+		additive = 1
+		cutoff = 3
+&end
+
+&error_element
+		element_type = KQUAD
+		item = DY
+		type = "gaussian"
+		amplitude = <PMQErr>
+		additive = 1
+		cutoff = 3
+&end
+
+&error_element
+		element_type = KQUAD
+		item = FSE
+		type = "gaussian"
+		amplitude = <PMQFSEErr>
+		additive = 1
+		cutoff = 3
+&end
+
+# EMQs
+
+&error_element
+		element_type = QUAD
+		item = DX
+		type = "gaussian"
+		amplitude = <EMQErr>
+		additive = 1
+		cutoff = 3
+		allow_missing_elements = 1
+&end
+
+&error_element
+		element_type = QUAD
+		item = DY
+		type = "gaussian"
+		amplitude = <EMQErr>
+		additive = 1
+		cutoff = 3
+		allow_missing_elements = 1
+&end
+
+&error_control
+		summarize_error_settings = 1	
+&end
+
+&twiss_output
+		filename = track_files/response/<prefix>.%s.twi
+		output_at_each_step = 1
+		matched = 0
+		statistics = 1
+		beta_x = 0.005, alpha_x = 0
+		beta_y = 0.005, alpha_y = 0
+&end
+
+!&bunched_beam
+!		bunch = track_files/response/<prefix>.%s.bun
+!		n_particles_per_bunch = 1000
+!		emit_nx = 1e-6
+!		emit_ny = 1e-6
+!		sigma_dp = 0.01
+!		sigma_s = 0.001
+!		use_twiss_command_values = 1
+!&end
+
+&sdds_beam
+		!input = ../FBPIC_Beam/Saved_Beams/OF2_EPAC_KDE_1GeV_CUT.sdds
+		input = <beam_path>
+		input_type = "elegant"
+&end
+
+&track &end

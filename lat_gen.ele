@@ -1,0 +1,53 @@
+&run_setup
+		lattice = <lattice>
+		default_order = 2
+		use_beamline = <beamline>
+		p_central_mev = <energy>
+		sigma = track_files/temp/%s.sig
+		centroid = track_files/temp/%s.cen
+		bpm_centroid = track_files/temp/%s.bpmcen
+		output = track_files/temp/%s.out
+		final = track_files/temp/%s.fin
+		magnets = track_files/temp/%s.mag
+		parameters = track_files/temp/%s.param
+		random_number_seed=123456789
+		print_statistics=1
+&end
+
+&run_control
+		n_steps = 1
+&end
+
+&twiss_output
+		filename = track_files/temp/%s.twi
+		output_at_each_step = 1
+		matched = 0
+		statistics = 1
+		beta_x = 0.005, alpha_x = 0
+		beta_y = 0.005, alpha_y = 0
+&end
+
+!&bunched_beam
+!		bunch = track_files/temp/%s.bun
+!		n_particles_per_bunch = 10000
+!		emit_nx = 1e-6
+!		emit_ny = 1e-6
+!		sigma_dp = 0.01
+!		sigma_s = 3e-6
+!		use_twiss_command_values = 1
+!&end
+
+
+&sdds_beam
+		input = ../FBPIC_Beam/Saved_Beams/OF2_EPAC_KDE_1GeV_CUT.sdds
+		!input = ../FBPIC_Beam/Saved_Beams/OF_1GeV_BRIGHT_1.sdds
+		input_type = "elegant"
+&end
+
+&track &end
+
+&save_lattice
+		filename = temp.lte
+		output_seq = 2
+&end
+

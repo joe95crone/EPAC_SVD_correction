@@ -1,0 +1,188 @@
+#--------------------------------------#
+#           Joe Crone                  #
+#          22/08/2023                  #
+#       EPAC_5GeV_Spectrometer         #
+#--------------------------------------#
+
+# ASSUMPTIONS
+# HERE I HAVE IMPLICITLY ASSUMED THAT THE CHAMBER ENDS AT 3m, with EMQs placed 0.2m after this 
+
+#---------------------------------
+# Markers, Watches + Miscellaneous
+#---------------------------------
+
+# BPM
+BPM: MONI
+
+# MARKER
+M1: MARK, FITPOINT=1
+
+# WATCH W1 (general beamline)
+W1: WATCH, FILENAME="watch_files/%s-%03ld.w1", DISABLE=1
+
+# MALIGN AND TWISS FOR ERROR ANALYSIS 
+
+MALIGN: MALIGN
+
+# MUST GIVE TWISS ELEMENT THE TWISS PARAMETERS AT THAT LOCATION, OTHERWISE IT SELECTS DEFAULTS + MESSES THINGS UP
+TWISS: TWISS, BETAX=0.005, BETAY=0.005, ALPHAX=0, ALPHAY=0, ETAX=0, ETAY=0, ETAXP=0, ETAYP=0
+
+#------------
+# Collimators
+#------------
+
+PMQCOL:    ECOL, L=0, X_MAX=4E-3, Y_MAX=4E-3
+EMQCOL:    ECOL, L=0, X_MAX=20E-3, Y_MAX=20E-3
+SPECTCOL:  RCOL, L=0, X_MAX=7.5E-3, Y_MAX=100E-3, DY=-80E-3
+SLIT:	RCOL, L=0, X_MAX=7.5E-3, Y_MAX=1E-3 
+
+#--------------------------
+# PMQ CAPTURE + FOCUS ARRAY
+#--------------------------
+
+# DRIFTS 
+# Bruno's optimised value NOT one in file initial
+% 0.193190855569 sto dlen
+% 0.02 sto dlenin
+
+dr:	edrift,L="dlen"
+drbpm:  edrift, L="dlen 2 /"
+drs1:	edrift,L="dlenin"
+
+# drifts for correctors
+dCAP2c1: edrift, L=0.4
+dCAP2c1bpm: edrift, L=0.2
+
+dc12emq: edrift, L=0.15
+dc12emqbpm: edrift, L=0.075
+
+demq2c2: edrift, L=0.15
+demq2c2bpm: edrift, L=0.075
+
+d2spect: edrift, L=0.227413
+d2IP: edrift, L=1.027664
+d2IPbpm: edrift, L="1.027664 2 /"
+
+# 10.027664 @ 15m, 5.027664 @ 10m, 1.027664 @ 6m
+
+# CORRECTORS
+% 0.15 sto kicklen
+
+C1: ekicker, L="kicklen", HKICK=0, VKICK=0
+C2: ekicker, L="kicklen", HKICK=0, VKICK=0
+
+# QUADRUPOLES
+% 0.05 sto quadlen
+% 30 sto hqf
+% -30 sto hqd
+
+hquadf1:	kquad,L="quadlen",k1="hqf"
+hquadf2:	kquad,L="quadlen",k1="hqf"
+hquadf3:	kquad,L="quadlen",k1="hqf"
+hquadf4:	kquad,L="quadlen",k1="hqf"
+hquadf5:	kquad,L="quadlen",k1="hqf"
+hquadf6:	kquad,L="quadlen",k1="hqf"
+
+hquadd1:	kquad,L="quadlen",k1="hqd"
+hquadd2:	kquad,L="quadlen",k1="hqd"
+hquadd3:	kquad,L="quadlen",k1="hqd"
+hquadd4:	kquad,L="quadlen",k1="hqd"
+hquadd5:	kquad,L="quadlen",k1="hqd"
+hquadd6:	kquad,L="quadlen",k1="hqd"
+
+# INTERMEDIARIES
+# SETUP IN PROPOSED 2-2-2-2-2-2 FORMATION - REDO
+
+ffagunit1: line = (hquadf1, W1, drbpm, BPM, drbpm, hquadf2, W1, drbpm, BPM, drbpm)
+ffagunit2: line = (hquadd1, W1, drbpm, BPM, drbpm, hquadd2, W1, drbpm, BPM, drbpm)
+ffagunit3: line = (hquadf3, W1, drbpm, BPM, drbpm, hquadf4, W1, drbpm, BPM, drbpm)
+ffagunit4: line = (hquadd3, W1, drbpm, BPM, drbpm, hquadd5, W1, drbpm, BPM, drbpm)
+ffagunit5: line = (hquadf5, W1, drbpm, BPM, drbpm, hquadf6, W1, drbpm, BPM, drbpm)
+ffagunit6: line = (hquadd5, W1, drbpm, BPM, drbpm, hquadd6, W1)
+
+ffagunit1col: line = (PMQCOL, hquadf1, W1, drbpm, BPM, drbpm, PMQCOL, hquadf2, W1, drbpm, BPM, drbpm)
+ffagunit2col: line = (PMQCOL, hquadd1, W1, drbpm, BPM, drbpm, PMQCOL, hquadd2, W1, drbpm, BPM, drbpm)
+ffagunit3col: line = (PMQCOL, hquadf3, W1, drbpm, BPM, drbpm, PMQCOL, hquadf4, W1, drbpm, BPM, drbpm)
+ffagunit4col: line = (PMQCOL, hquadd3, W1, drbpm, BPM, drbpm, PMQCOL, hquadd4, W1, drbpm, BPM, drbpm)
+ffagunit5col: line = (PMQCOL, hquadf5, W1, drbpm, BPM, drbpm, PMQCOL, hquadf6, W1, drbpm, BPM, drbpm)
+ffagunit6col: line = (PMQCOL, hquadd5, W1, drbpm, BPM, drbpm, PMQCOL, hquadd6, W1)
+
+PMQarray5GeV: line = (drs1, ffagunit1, ffagunit2, ffagunit3, ffagunit4, ffagunit5, ffagunit6)
+PMQarray5GeVcol: line = (drs1, ffagunit1col, ffagunit2col, ffagunit3col, ffagunit4col, ffagunit5col, ffagunit6col)
+
+# Total of 8 PMQs for FF DD FF DD (FODO)
+PMQcapture5GeV: line = (drs1, ffagunit1, ffagunit2, ffagunit3, ffagunit4)
+
+PMQcapture5GeVcol: line = (drs1, ffagunit1col, ffagunit2col, ffagunit3col, ffagunit4col)
+
+#------------
+# EMQ Triplet(s)
+#------------
+
+# DRIFTS
+% 0.2 sto triplen
+% 0.2 sto EMQlen
+
+dtrip: edrift, L="triplen"
+dtripbpm: edrift, L="triplen 2 /" 
+
+# QUADRUPOLES
+# commented values for 5 GeV spectrometer
+# remember that the values for specific cases are available in the saved lattice files
+
+Q1:	quad, L="EMQlen", k1= 2.039548952248357
+Q2:	quad, L="EMQlen", k1= 2.076364291063547
+Q3:	quad, L="EMQlen", k1= 2.17679860949299
+
+Q4:	quad, L="EMQlen", k1= -1.261693182385603
+Q5:	quad, L="EMQlen", k1= -2.199999999999999
+Q6:	quad, L="EMQlen", k1= -2.199114902474672
+
+tripunit1: line = (Q1, W1, dtripbpm, BPM, dtripbpm, Q2, W1, dtripbpm, BPM, dtripbpm, Q3, W1)
+tripunit1col: line = (EMQCOL, Q1, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q2, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q3, W1)
+
+tripunit2: line = (Q4, W1, dtripbpm, BPM, dtripbpm, Q5, W1, dtripbpm, BPM, dtripbpm, Q6, W1)
+tripunit2col: line = (EMQCOL, Q4, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q5, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q6, W1)
+
+#-------------
+# Spectrometer
+#-------------
+
+# DRIFTS
+
+d2screen: edrift, L=0.2
+# Alex's newest spectrometer design (05/12/2022)
+dspect: edrift, L=1.1
+dnospect: edrift, L=2.800251
+ddip: edrift, L=0.750012505
+
+# SPECTROMETER DIPOLES 
+B1: rben, L=0.75, TILT=1.570796327, ANGLE=0.0634, DY=-80E-3
+B2: rben, L=0.75, TILT=-1.570796327, ANGLE=-0.0634, DY=-80E-3
+
+spect5GeV: line = (B1, dspect, B2, d2screen)
+
+spect5GeVcol: line = (SPECTCOL, B1, dspect, SPECTCOL, B2, d2screen)
+
+NOspect5GeVcol: line = (SPECTCOL, ddip, dspect, SPECTCOL, ddip, d2screen)
+
+spect5GeVslit: line = (SPECTCOL, B1, dspect, SPECTCOL, B2, SLIT, d2screen)
+
+#----------
+# Beamlines
+#----------
+# NO COLLIMATION
+
+PMQarray: line = (MALIGN, TWISS, W1, PMQarray5GeV, M1)
+
+# Alternate foci beamline - d2IP varies
+# Careful with IP distance and splitting of length
+AF6m: line = (MALIGN, TWISS, W1, PMQcapture5GeV, dCAP2c1bpm, BPM, dCAP2c1bpm, C1, dc12emqbpm, BPM, dc12emqbpm, tripunit1, dtripbpm, BPM, bpm, tripunit2, demq2c2bpm, BPM, demq2c2bpm, C2, d2IPbpm, BPM, d2IPbpm, M1, W1)
+
+# COLLIMATION
+
+PMQarrayCOL: line = (MALIGN, TWISS, W1, PMQarray5GeVcol, M1)
+
+# Alternate Foci Collimation beamlines
+AF6mCOL: line = (MALIGN, TWISS, W1, PMQcapture5GeVcol, dCAP2c1bpm, BPM, dCAP2c1bpm, C1, dc12emqbpm, BPM, dc12emqbpm, tripunit1col, dtripbpm, BPM, dtripbpm, tripunit2col, demq2c2bpm, BPM, demq2c2bpm, C2, d2IPbpm, BPM, d2IPbpm, M1, W1)
+
